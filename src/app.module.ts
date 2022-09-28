@@ -5,12 +5,12 @@ import { SancheksModule } from "./sancheks/sancheks.module";
 
 @Module({
   imports: [
+    SancheksModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       debug: false,
       driver: ApolloDriver,
       autoSchemaFile: true,
     }),
-    SancheksModule,
   ],
 })
 export class AppModule {}
