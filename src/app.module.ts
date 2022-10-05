@@ -4,8 +4,9 @@ import { ConfigModule } from "@nestjs/config";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { SancheksModule } from "./sancheks/sancheks.module";
-import { Sanchek } from "./sancheks/entities/sanchek.entity";
+import { User } from "./users/entities/user.entity";
+import { UsersModule } from "./users/users.module";
+import { CoreModule } from "./common/core.module";
 
 @Module({
   imports: [
@@ -34,14 +35,15 @@ import { Sanchek } from "./sancheks/entities/sanchek.entity";
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== "production",
       logging: process.env.NODE_ENV !== "production",
-      entities: [Sanchek],
+      entities: [User],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       debug: false,
       driver: ApolloDriver,
       autoSchemaFile: true,
     }),
-    SancheksModule,
+    UsersModule,
+    CoreModule,
   ],
 })
 export class AppModule {}
