@@ -1,6 +1,6 @@
 import { InternalServerErrorException } from "@nestjs/common";
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
-import { BeforeUpdate, Column, Entity } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm";
 import * as bcrypt from "bcrypt";
 import { CoreEntity } from "src/common/entities/core.entity";
 import { IsEmail, IsString } from "class-validator";
@@ -14,7 +14,7 @@ export class User extends CoreEntity {
   @IsEmail()
   email: string;
 
-  @Column()
+  @Column({ select: false })
   @Field((type) => String)
   password: string;
 
@@ -23,23 +23,28 @@ export class User extends CoreEntity {
   @IsString()
   nickname: string;
 
+  @BeforeInsert()
   @BeforeUpdate()
   async hashPassword(): Promise<void> {
-    try {
-      this.password = await bcrypt.hash(this.password, 10);
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException();
+    if (this.password) {
+      try {
+        this.password = await bcrypt.hash(this.password, 10);
+      } catch (error) {
+        console.log(error);
+        throw new InternalServerErrorException();
+      }
     }
   }
 
   async checkPassword(undefinedPassword: string): Promise<boolean> {
-    try {
-      const ok = await bcrypt.compare(undefinedPassword, this.password);
-      return ok;
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException();
+    if (this.password) {
+      try {
+        const ok = await bcrypt.compare(undefinedPassword, this.password);
+        return ok;
+      } catch (error) {
+        console.log(error);
+        throw new InternalServerErrorException();
+      }
     }
   }
 }
