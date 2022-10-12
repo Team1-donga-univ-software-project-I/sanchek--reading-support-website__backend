@@ -15,6 +15,9 @@ import { CoreModule } from "./common/core.module";
 import { JwtModule } from "./jwt/jwt.module";
 import { JwtMiddleware } from "./jwt/jwt.middleware";
 import { Archivements } from "./users/entities/archivement.entity";
+import { Sanchek } from "./sancheks/entities/sanchek.entity";
+import { BookInfo } from "./sancheks/entities/book-info.entity";
+import { SancheksModule } from "./sancheks/sancheks.module";
 
 @Module({
   imports: [
@@ -44,7 +47,7 @@ import { Archivements } from "./users/entities/archivement.entity";
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== "production",
       logging: process.env.NODE_ENV !== "production",
-      entities: [User, Archivements],
+      entities: [User, Archivements, Sanchek, BookInfo],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       debug: false,
@@ -56,6 +59,7 @@ import { Archivements } from "./users/entities/archivement.entity";
       privateKey: process.env.PRIVATE_KEY,
     }),
     UsersModule,
+    SancheksModule,
   ],
 })
 export class AppModule implements NestModule {

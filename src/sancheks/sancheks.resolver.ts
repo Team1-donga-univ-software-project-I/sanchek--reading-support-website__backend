@@ -1,6 +1,8 @@
-import { Args, Query, Resolver, Mutation } from "@nestjs/graphql";
-import { CreateSanchekDto } from "./dtos/create-sanchek.dto";
-import { UpdateSanchekDto } from "./dtos/update-sanchek.dto";
+import { Args, Resolver, Mutation } from "@nestjs/graphql";
+import { AuthUser } from "src/auth/auth-user.decorator";
+import { CreateAccountOutput } from "src/users/dtos/create-account.dto";
+import { User } from "src/users/entities/user.entity";
+import { CreateSanchekInput } from "./dtos/create-sanchek.dto";
 import { Sanchek } from "./entities/sanchek.entity";
 import { SanchekService } from "./sancheks.service";
 
@@ -8,34 +10,11 @@ import { SanchekService } from "./sancheks.service";
 export class SanchekResolver {
   constructor(private readonly sanchekService: SanchekService) {}
 
-  @Query((returns) => [Sanchek])
-  sancheks(): Promise<Sanchek[]> {
-    return this.sanchekService.getAll();
-  }
-
-  @Mutation((returns) => Boolean)
+  @Mutation((returns) => CreateAccountOutput)
   async createSanchek(
-    @Args("input") createSanchekDto: CreateSanchekDto
-  ): Promise<Boolean> {
-    try {
-      await this.sanchekService.createSanchek(createSanchekDto);
-      return true;
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
-  }
-
-  @Mutation((returns) => Boolean)
-  async updateSanchek(
-    @Args("input") updateSanchekDto: UpdateSanchekDto
-  ): Promise<Boolean> {
-    try {
-      await this.sanchekService.updateSanchek(updateSanchekDto);
-      return true;
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
+    @AuthUser() authUser: User,
+    @Args("input") createSanchekInput: CreateSanchekInput
+  ): Promise<CreateAccountOutput> {
+    return this.sanchekService.createSanchek(authUser, createSanchekInput);
   }
 }

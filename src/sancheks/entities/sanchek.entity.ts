@@ -1,15 +1,20 @@
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import { IsBoolean, IsString, Length } from "class-validator";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { CoreEntity } from "src/common/entities/core.entity";
+import { User } from "src/users/entities/user.entity";
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { BookInfo } from "./book-info.entity";
 
-@InputType({ isAbstract: true })
+@InputType("SanchekInputType", { isAbstract: true })
 @ObjectType()
 @Entity()
-export class Sanchek {
-  @PrimaryGeneratedColumn()
-  @Field((type) => Number)
-  id: number;
-
+export class Sanchek extends CoreEntity {
   @Field((type) => String)
   @Column()
   @IsString()
@@ -27,8 +32,13 @@ export class Sanchek {
   @IsBoolean()
   isOpend: boolean;
 
-  @Field((type) => String)
-  @Column()
-  @IsString()
-  author: string;
+  @Field((type) => User, { nullable: true })
+  @ManyToOne((type) => User, (user) => user.sancheks, { onDelete: "SET NULL" })
+  author: User;
+
+  @Field((type) => BookInfo)
+  @OneToOne((type) => BookInfo, (bookInfo) => bookInfo.sanchek, {
+    onDelete: "CASCADE",
+  })
+  bookInfo: BookInfo;
 }
