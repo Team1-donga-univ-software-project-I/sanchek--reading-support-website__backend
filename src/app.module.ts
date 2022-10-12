@@ -14,6 +14,7 @@ import { UsersModule } from "./users/users.module";
 import { CoreModule } from "./common/core.module";
 import { JwtModule } from "./jwt/jwt.module";
 import { JwtMiddleware } from "./jwt/jwt.middleware";
+import { Archivements } from "./users/entities/archivement.entity";
 
 @Module({
   imports: [
@@ -43,7 +44,7 @@ import { JwtMiddleware } from "./jwt/jwt.middleware";
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== "production",
       logging: process.env.NODE_ENV !== "production",
-      entities: [User],
+      entities: [User, Archivements],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       debug: false,
