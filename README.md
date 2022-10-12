@@ -27,3 +27,7 @@ Record and share your reading impressions. And share your thoughts with other us
    - createSanchek : create sanchek
    - updateSanchek : update sanchek
 2. User CRUD
+   - createAccount
+   - login
+   - userProfile
+   - updateProfile
