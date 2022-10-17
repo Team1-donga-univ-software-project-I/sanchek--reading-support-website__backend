@@ -81,7 +81,6 @@ export class UserService {
     try {
       const user = await this.users.findOne({
         where: { id },
-        select: ["email", "nickname"],
       });
       if (!user) {
         throw Error();

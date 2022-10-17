@@ -16,8 +16,11 @@ import { JwtModule } from "./jwt/jwt.module";
 import { JwtMiddleware } from "./jwt/jwt.middleware";
 import { Archivements } from "./users/entities/archivement.entity";
 import { Sanchek } from "./sancheks/entities/sanchek.entity";
-import { BookInfo } from "./sancheks/entities/book-info.entity";
+import { BookName } from "./sancheks/entities/book-name.entity";
 import { SancheksModule } from "./sancheks/sancheks.module";
+import { AuthModule } from "./auth/auth.module";
+import { TypeOrmExModule } from "./typeorm-ex/typeorm-ex.module";
+import { BookNameRepository } from "./sancheks/repositories/bookName.repository";
 
 @Module({
   imports: [
@@ -47,7 +50,7 @@ import { SancheksModule } from "./sancheks/sancheks.module";
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== "production",
       logging: process.env.NODE_ENV !== "production",
-      entities: [User, Archivements, Sanchek, BookInfo],
+      entities: [User, Archivements, Sanchek, BookName],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       debug: false,
@@ -58,8 +61,10 @@ import { SancheksModule } from "./sancheks/sancheks.module";
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY,
     }),
+    AuthModule,
     UsersModule,
     SancheksModule,
+    TypeOrmExModule.forCustomRepository([BookNameRepository]),
   ],
 })
 export class AppModule implements NestModule {
