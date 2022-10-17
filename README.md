@@ -23,9 +23,12 @@ Record and share your reading impressions. And share your thoughts with other us
 ---
 
 1. Sanchek CRUD
+
    - sancheks : loading all of sanchek data
    - createSanchek : create sanchek
-   - updateSanchek : update sanchek
+   - editSanchek : update sanchek
+   - deleteSanchek: deleteSanchek
+
 2. User CRUD
    - createAccount
    - login
