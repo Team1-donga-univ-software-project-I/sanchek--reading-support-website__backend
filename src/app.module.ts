@@ -11,16 +11,15 @@ import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "./users/entities/user.entity";
 import { UsersModule } from "./users/users.module";
-import { CoreModule } from "./common/core.module";
 import { JwtModule } from "./jwt/jwt.module";
 import { JwtMiddleware } from "./jwt/jwt.middleware";
 import { Archivements } from "./users/entities/archivement.entity";
 import { Sanchek } from "./sancheks/entities/sanchek.entity";
 import { BookName } from "./sancheks/entities/book-name.entity";
 import { SancheksModule } from "./sancheks/sancheks.module";
-import { AuthModule } from "./auth/auth.module";
-import { TypeOrmExModule } from "./typeorm-ex/typeorm-ex.module";
-import { BookNameRepository } from "./sancheks/repositories/bookName.repository";
+import { Discuss } from "./discusses/entities/discuss.entity";
+import { DiscussesModule } from "./discusses/discusses.module";
+import { Opinion } from "./discusses/entities/opinion.entity";
 
 @Module({
   imports: [
@@ -50,7 +49,7 @@ import { BookNameRepository } from "./sancheks/repositories/bookName.repository"
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== "production",
       logging: process.env.NODE_ENV !== "production",
-      entities: [User, Archivements, Sanchek, BookName],
+      entities: [User, Archivements, Sanchek, BookName, Discuss, Opinion],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       debug: false,
@@ -61,10 +60,9 @@ import { BookNameRepository } from "./sancheks/repositories/bookName.repository"
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY,
     }),
-    AuthModule,
     UsersModule,
     SancheksModule,
-    TypeOrmExModule.forCustomRepository([BookNameRepository]),
+    DiscussesModule,
   ],
 })
 export class AppModule implements NestModule {

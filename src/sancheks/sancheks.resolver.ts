@@ -9,17 +9,23 @@ import {
 } from "@nestjs/graphql";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { AuthGuard } from "src/auth/auth.guard";
-import { CreateAccountOutput } from "src/users/dtos/create-account.dto";
 import { User } from "src/users/entities/user.entity";
 import { AllBooksOutput } from "./dtos/all-books.dto";
 import { AllSancheksInput, AllSancheksOutput } from "./dtos/all-sancheks.dto";
 import { BookSearchInput, BookSearchOutput } from "./dtos/book-search.dto";
-import { CreateSanchekInput } from "./dtos/create-sanchek.dto";
+import {
+  CreateSanchekInput,
+  CreateSanchekOutput,
+} from "./dtos/create-sanchek.dto";
 import {
   DeleteSanchekInput,
   DeleteSanchekOutput,
 } from "./dtos/delete-sanchek.dto";
 import { EditSanchekInput, EditSanchekOutput } from "./dtos/edit-sanchek.dto";
+import {
+  PlusLikedCountInput,
+  PlusLikedCountOutput,
+} from "./dtos/plus-likedCount.dto";
 import { SanchekInput, SanchekOutput } from "./dtos/sanchek.dto";
 import {
   SearchSancheksInput,
@@ -33,12 +39,12 @@ import { SanchekService } from "./sancheks.service";
 export class SanchekResolver {
   constructor(private readonly sanchekService: SanchekService) {}
 
-  @Mutation((returns) => CreateAccountOutput)
+  @Mutation((returns) => CreateSanchekOutput)
   @UseGuards(AuthGuard)
-  async createSanchek(
+  createSanchek(
     @AuthUser() authUser: User,
     @Args("input") createSanchekInput: CreateSanchekInput
-  ): Promise<CreateAccountOutput> {
+  ): Promise<CreateSanchekOutput> {
     return this.sanchekService.createSanchek(authUser, createSanchekInput);
   }
 
@@ -53,7 +59,7 @@ export class SanchekResolver {
 
   @Mutation((returns) => DeleteSanchekOutput)
   @UseGuards(AuthGuard)
-  DeleteSanchekOutput(
+  deleteSanchek(
     @AuthUser() author: User,
     @Args("input") deleteSanchekInput: DeleteSanchekInput
   ): Promise<DeleteSanchekOutput> {
@@ -79,6 +85,13 @@ export class SanchekResolver {
     @Args("input") searchSancheksInput: SearchSancheksInput
   ): Promise<SearchSancheksOutput> {
     return this.sanchekService.searchSanchekByQuery(searchSancheksInput);
+  }
+
+  @Mutation((returns) => PlusLikedCountOutput)
+  plusLikedCount(
+    @Args("input") plusLikedCountInput: PlusLikedCountInput
+  ): Promise<PlusLikedCountOutput> {
+    return this.sanchekService.plusLikedCount(plusLikedCountInput);
   }
 }
 

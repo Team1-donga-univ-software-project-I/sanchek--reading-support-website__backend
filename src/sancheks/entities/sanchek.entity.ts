@@ -1,8 +1,8 @@
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
-import { IsBoolean, IsString, Length } from "class-validator";
+import { IsBoolean, IsNumber, IsString, Length } from "class-validator";
 import { CoreEntity } from "src/common/entities/core.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, ManyToOne, OneToOne, RelationId } from "typeorm";
+import { Column, Entity, ManyToOne, RelationId } from "typeorm";
 import { BookName } from "./book-name.entity";
 
 @InputType("SanchekInputType", { isAbstract: true })
@@ -25,6 +25,11 @@ export class Sanchek extends CoreEntity {
   @Column()
   @IsBoolean()
   isOpend: boolean;
+
+  @Field((type) => Number, { defaultValue: 0 })
+  @Column({ default: 0 })
+  @IsNumber()
+  likedCount: number;
 
   @Field((type) => BookName, { nullable: true })
   @ManyToOne((type) => BookName, (bookName) => bookName.sanchek, {

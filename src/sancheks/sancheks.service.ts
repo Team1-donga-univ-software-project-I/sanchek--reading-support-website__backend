@@ -9,7 +9,6 @@ import {
 import { BookName } from "./entities/book-name.entity";
 import { EditSanchekInput, EditSanchekOutput } from "./dtos/edit-sanchek.dto";
 import { Sanchek } from "./entities/sanchek.entity";
-import { BookNameRepository } from "./repositories/bookName.repository";
 import {
   DeleteSanchekInput,
   DeleteSanchekOutput,
@@ -22,6 +21,10 @@ import {
   SearchSancheksInput,
   SearchSancheksOutput,
 } from "./dtos/search-sanchek.dto";
+import {
+  PlusLikedCountInput,
+  PlusLikedCountOutput,
+} from "./dtos/plus-likedCount.dto";
 
 @Injectable()
 export class SanchekService {
@@ -29,8 +32,22 @@ export class SanchekService {
     @InjectRepository(Sanchek)
     private readonly sancheks: Repository<Sanchek>,
     @InjectRepository(BookName)
-    private readonly bookNames: BookNameRepository
+    private readonly bookNames: Repository<BookName>
   ) {}
+
+  async getOrCreate(title: string): Promise<BookName> {
+    const bookTitle = title.trim().toLowerCase().replace(/ +/g, " ");
+    const bookNameSlug = bookTitle.replace(/ /g, "-");
+    let bookName = await this.bookNames.findOne({
+      where: { slug: bookNameSlug },
+    });
+    if (!bookName) {
+      bookName = await this.bookNames.save(
+        this.bookNames.create({ slug: bookNameSlug, title: bookTitle })
+      );
+    }
+    return bookName;
+  }
 
   async createSanchek(
     author: User,
@@ -39,9 +56,10 @@ export class SanchekService {
     try {
       const newSanchek = this.sancheks.create(createSanchekInput);
       newSanchek.author = author;
-      const bookName = await this.bookNames.getOrCreate(
+      const bookName = await this.getOrCreate(
         createSanchekInput.bookNameString
       );
+      console.log(bookName);
       newSanchek.bookName = bookName;
       await this.sancheks.save(newSanchek);
       return {
@@ -77,9 +95,7 @@ export class SanchekService {
       }
       let bookName: BookName = null;
       if (editSanchekInput.bookNameString) {
-        bookName = await this.bookNames.getOrCreate(
-          editSanchekInput.bookNameString
-        );
+        bookName = await this.getOrCreate(editSanchekInput.bookNameString);
       }
       await this.sancheks.save([
         {
@@ -239,6 +255,34 @@ export class SanchekService {
         sancheks,
         totalResults,
         totalPages: Math.ceil(totalResults / 25),
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error,
+      };
+    }
+  }
+
+  async plusLikedCount({
+    sanchekId,
+  }: PlusLikedCountInput): Promise<PlusLikedCountOutput> {
+    try {
+      const sanchek = await this.sancheks.findOne({ where: { id: sanchekId } });
+      if (!sanchek) {
+        return {
+          ok: false,
+          error: "Sanchek not found",
+        };
+      }
+      await this.sancheks.save([
+        {
+          id: sanchekId,
+          likedCount: sanchek.likedCount + 1,
+        },
+      ]);
+      return {
+        ok: true,
       };
     } catch (error) {
       return {
