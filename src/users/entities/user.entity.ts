@@ -1,6 +1,6 @@
 import { InternalServerErrorException } from "@nestjs/common";
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
-import { BeforeUpdate, Column, Entity } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm";
 import * as bcrypt from "bcrypt";
 import { CoreEntity } from "src/common/entities/core.entity";
 import { IsEmail, IsString } from "class-validator";
@@ -23,6 +23,7 @@ export class User extends CoreEntity {
   @IsString()
   nickname: string;
 
+  @BeforeInsert()
   @BeforeUpdate()
   async hashPassword(): Promise<void> {
     try {
