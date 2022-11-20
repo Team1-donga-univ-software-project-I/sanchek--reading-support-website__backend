@@ -8,7 +8,9 @@ import {
 } from "./dtos/create-account.dto";
 import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
 import { LoginInput, LoginOutput } from "./dtos/login.dto";
+import { UserArchivementsOutput } from "./dtos/user-archivements.dto";
 import { UserProfileInput, UserProfileOutput } from "./dtos/user-profile.dto";
+import { Archivements } from "./entities/archivement.entity";
 import { User } from "./entities/user.entity";
 import { UserService } from "./users.service";
 
@@ -49,5 +51,18 @@ export class UserResolver {
     @Args("input") editProfileInput: EditProfileInput
   ): Promise<EditProfileOutput> {
     return this.userService.editProfile(authUser.id, editProfileInput);
+  }
+}
+
+@Resolver((of) => Archivements)
+export class ArchivementResolver {
+  constructor(private readonly userService: UserService) {}
+
+  @UseGuards(AuthGuard)
+  @Query((returns) => UserArchivementsOutput)
+  async userArchivements(
+    @AuthUser() authUser: User
+  ): Promise<UserProfileOutput> {
+    return this.userService.userArchivements(authUser);
   }
 }

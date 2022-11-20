@@ -23,6 +23,10 @@ import {
 } from "./dtos/delete-sanchek.dto";
 import { EditSanchekInput, EditSanchekOutput } from "./dtos/edit-sanchek.dto";
 import {
+  FindSanchekByUserInput,
+  FindSanchekByUserOutput,
+} from "./dtos/find-sancheks-user.dto";
+import {
   PlusLikedCountInput,
   PlusLikedCountOutput,
 } from "./dtos/plus-likedCount.dto";
@@ -85,6 +89,18 @@ export class SanchekResolver {
     @Args("input") searchSancheksInput: SearchSancheksInput
   ): Promise<SearchSancheksOutput> {
     return this.sanchekService.searchSanchekByQuery(searchSancheksInput);
+  }
+
+  @Query((returns) => FindSanchekByUserOutput)
+  @UseGuards(AuthGuard)
+  findSanchekByUser(
+    @AuthUser() authUser: User,
+    @Args("input") findSanchekByUserInput: FindSanchekByUserInput
+  ): Promise<FindSanchekByUserOutput> {
+    return this.sanchekService.findSanchekByUser(
+      authUser,
+      findSanchekByUserInput
+    );
   }
 
   @Mutation((returns) => PlusLikedCountOutput)

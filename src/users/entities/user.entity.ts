@@ -1,10 +1,18 @@
 import { InternalServerErrorException } from "@nestjs/common";
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from "typeorm";
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+} from "typeorm";
 import * as bcrypt from "bcrypt";
 import { CoreEntity } from "src/common/entities/core.entity";
 import { IsEmail, IsString } from "class-validator";
 import { Sanchek } from "src/sancheks/entities/sanchek.entity";
+import { Archivements } from "./archivement.entity";
 
 @InputType("UserInputType", { isAbstract: true })
 @ObjectType()
@@ -15,7 +23,7 @@ export class User extends CoreEntity {
   @IsEmail()
   email: string;
 
-  @Column()
+  @Column({ select: false })
   @Field((type) => String)
   @IsString()
   password: string;
@@ -24,6 +32,12 @@ export class User extends CoreEntity {
   @Field((type) => String)
   @IsString()
   nickname: string;
+
+  @Field((type) => Archivements)
+  @OneToOne((type) => Archivements, (archivement) => archivement.user, {
+    onDelete: "CASCADE",
+  })
+  archivements: Archivements;
 
   @Field((type) => [Sanchek])
   @OneToMany((type) => Sanchek, (sanchek) => sanchek.author, {
