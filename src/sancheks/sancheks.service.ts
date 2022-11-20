@@ -25,6 +25,10 @@ import {
   PlusLikedCountInput,
   PlusLikedCountOutput,
 } from "./dtos/plus-likedCount.dto";
+import {
+  FindSanchekByUserInput,
+  FindSanchekByUserOutput,
+} from "./dtos/find-sancheks-user.dto";
 
 @Injectable()
 export class SanchekService {
@@ -236,6 +240,27 @@ export class SanchekService {
         error,
       };
     }
+  }
+
+  async findSanchekByUser(
+    authUser: User,
+    { page }: FindSanchekByUserInput
+  ): Promise<FindSanchekByUserOutput> {
+    try {
+      const [sancheks, totalResults] = await this.sancheks.findAndCount({
+        where: {
+          author: { id: authUser.id },
+        },
+        skip: (page - 1) * 25,
+        take: 25,
+      });
+      return {
+        ok: true,
+        sancheks,
+        totalResults,
+        totalPages: Math.ceil(totalResults / 25),
+      };
+    } catch (error) {}
   }
 
   async searchSanchekByQuery({

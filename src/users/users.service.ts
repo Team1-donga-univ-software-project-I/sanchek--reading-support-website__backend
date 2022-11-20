@@ -49,6 +49,7 @@ export class UserService {
     try {
       const user = await this.users.findOne({
         where: { email },
+        select: ["password"],
       });
       if (!user) {
         return {
@@ -100,18 +101,28 @@ export class UserService {
 
   async editProfile(
     userId: number,
-    { email, password }: EditProfileInput
+    { email, password, nickname }: EditProfileInput
   ): Promise<EditProfileOutput> {
     try {
       const user = await this.users.findOne({
         where: { id: userId },
-        select: ["email", "password"],
       });
+
       if (email) {
+        const emailExist = await this.users.findOne({ where: { email } });
+        if (emailExist) {
+          return {
+            ok: false,
+            error: "This Email already used",
+          };
+        }
         user.email = email;
       }
       if (password) {
         user.password = password;
+      }
+      if (nickname) {
+        user.nickname = nickname;
       }
       await this.users.save(user);
       return {
@@ -122,6 +133,20 @@ export class UserService {
         ok: false,
         error,
       };
+    }
+  }
+
+  async userArchivements(authUser: User) {
+    try {
+      const archivements = await this.archivements.findOne({
+        where: { user: { id: authUser.id } },
+      });
+      return {
+        ok: true,
+        archivements,
+      };
+    } catch (error) {
+      console.log(error);
     }
   }
 }
