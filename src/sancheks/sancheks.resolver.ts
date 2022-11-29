@@ -10,9 +10,7 @@ import {
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { AuthGuard } from "src/auth/auth.guard";
 import { User } from "src/users/entities/user.entity";
-import { AllBooksOutput } from "./dtos/all-books.dto";
 import { AllSancheksInput, AllSancheksOutput } from "./dtos/all-sancheks.dto";
-import { BookSearchInput, BookSearchOutput } from "./dtos/book-search.dto";
 import {
   CreateSanchekInput,
   CreateSanchekOutput,
@@ -35,7 +33,6 @@ import {
   SearchSancheksInput,
   SearchSancheksOutput,
 } from "./dtos/search-sanchek.dto";
-import { BookName } from "./entities/book-name.entity";
 import { Sanchek } from "./entities/sanchek.entity";
 import { SanchekService } from "./sancheks.service";
 
@@ -108,27 +105,5 @@ export class SanchekResolver {
     @Args("input") plusLikedCountInput: PlusLikedCountInput
   ): Promise<PlusLikedCountOutput> {
     return this.sanchekService.plusLikedCount(plusLikedCountInput);
-  }
-}
-
-@Resolver((of) => BookName)
-export class BookNameResolver {
-  constructor(private readonly sanchekService: SanchekService) {}
-
-  @ResolveField((type) => Number)
-  sanchekCount(@Parent() bookName: BookName): Promise<number> {
-    return this.sanchekService.countSanchekBookName(bookName);
-  }
-
-  @Query((type) => AllBooksOutput)
-  allBooks(): Promise<AllBooksOutput> {
-    return this.sanchekService.allBooks();
-  }
-
-  @Query((type) => BookSearchOutput)
-  bookSearch(
-    @Args("input") bookSearchInput: BookSearchInput
-  ): Promise<BookSearchOutput> {
-    return this.sanchekService.bookSearch(bookSearchInput);
   }
 }

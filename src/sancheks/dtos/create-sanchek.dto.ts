@@ -7,10 +7,8 @@ export class CreateSanchekInput extends PickType(Sanchek, [
   "title",
   "content",
   "isOpend",
-]) {
-  @Field((type) => String)
-  bookNameString: string;
-}
+  "bookName",
+]) {}
 
 @ObjectType()
 export class CreateSanchekOutput extends CoreOutput {}
