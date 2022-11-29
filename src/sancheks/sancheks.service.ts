@@ -6,15 +6,12 @@ import {
   CreateSanchekInput,
   CreateSanchekOutput,
 } from "./dtos/create-sanchek.dto";
-import { BookName } from "./entities/book-name.entity";
 import { EditSanchekInput, EditSanchekOutput } from "./dtos/edit-sanchek.dto";
 import { Sanchek } from "./entities/sanchek.entity";
 import {
   DeleteSanchekInput,
   DeleteSanchekOutput,
 } from "./dtos/delete-sanchek.dto";
-import { AllBooksOutput } from "./dtos/all-books.dto";
-import { BookSearchInput, BookSearchOutput } from "./dtos/book-search.dto";
 import { AllSancheksInput, AllSancheksOutput } from "./dtos/all-sancheks.dto";
 import { SanchekInput, SanchekOutput } from "./dtos/sanchek.dto";
 import {
@@ -34,24 +31,8 @@ import {
 export class SanchekService {
   constructor(
     @InjectRepository(Sanchek)
-    private readonly sancheks: Repository<Sanchek>,
-    @InjectRepository(BookName)
-    private readonly bookNames: Repository<BookName>
+    private readonly sancheks: Repository<Sanchek>
   ) {}
-
-  async getOrCreate(title: string): Promise<BookName> {
-    const bookTitle = title.trim().toLowerCase().replace(/ +/g, " ");
-    const bookNameSlug = bookTitle.replace(/ /g, "-");
-    let bookName = await this.bookNames.findOne({
-      where: { slug: bookNameSlug },
-    });
-    if (!bookName) {
-      bookName = await this.bookNames.save(
-        this.bookNames.create({ slug: bookNameSlug, title: bookTitle })
-      );
-    }
-    return bookName;
-  }
 
   async createSanchek(
     author: User,
@@ -60,11 +41,6 @@ export class SanchekService {
     try {
       const newSanchek = this.sancheks.create(createSanchekInput);
       newSanchek.author = author;
-      const bookName = await this.getOrCreate(
-        createSanchekInput.bookNameString
-      );
-      console.log(bookName);
-      newSanchek.bookName = bookName;
       await this.sancheks.save(newSanchek);
       return {
         ok: true,
@@ -97,15 +73,11 @@ export class SanchekService {
           error: "You can't access others sanchek",
         };
       }
-      let bookName: BookName = null;
-      if (editSanchekInput.bookNameString) {
-        bookName = await this.getOrCreate(editSanchekInput.bookNameString);
-      }
+
       await this.sancheks.save([
         {
           id: editSanchekInput.sanchekId,
           ...editSanchekInput,
-          ...(bookName && { bookName }),
         },
       ]);
       return {
@@ -149,63 +121,12 @@ export class SanchekService {
     }
   }
 
-  async allBooks(): Promise<AllBooksOutput> {
-    try {
-      const bookNames = await this.bookNames.find();
-      return {
-        ok: true,
-        bookNames,
-      };
-    } catch (error) {
-      return {
-        ok: false,
-        error,
-      };
-    }
-  }
-
-  countSanchekBookName(bookName: BookName) {
-    return this.sancheks.count({ where: { bookName: { id: bookName.id } } });
-  }
-
-  async bookSearch({ slug, page }: BookSearchInput): Promise<BookSearchOutput> {
-    try {
-      const bookName = await this.bookNames.findOne({
-        where: { slug },
-      });
-      if (!bookName) {
-        return {
-          ok: false,
-          error: "Book not found",
-        };
-      }
-      const sancheks = await this.sancheks.find({
-        where: {
-          bookName: { id: bookName.id },
-        },
-        take: 25,
-        skip: (page - 1) * 25,
-      });
-      const totalResults = await this.countSanchekBookName(bookName);
-      return {
-        ok: true,
-        sancheks,
-        bookName,
-        totalPages: Math.ceil(totalResults / 25),
-      };
-    } catch (error) {
-      return {
-        ok: false,
-        error,
-      };
-    }
-  }
-
   async allSancheks({ page }: AllSancheksInput): Promise<AllSancheksOutput> {
     try {
       const [sancheks, totalResults] = await this.sancheks.findAndCount({
         skip: (page - 1) * 25,
         take: 25,
+        relations: ["author"],
       });
       return {
         ok: true,
@@ -223,7 +144,7 @@ export class SanchekService {
 
   async findSanchekById({ sanchekId }: SanchekInput): Promise<SanchekOutput> {
     try {
-      const sanchek = await this.sancheks.findOne({ where: { id: sanchekId } });
+      const sanchek = await this.sancheks.findOne({ where: { id: sanchekId }, relations: ["author"] });
       if (!sanchek) {
         return {
           ok: false,
@@ -272,6 +193,7 @@ export class SanchekService {
         where: {
           title: Raw((title) => `${title} ILIKE '%${query}%'`),
         },
+        relations: ["author"],
         skip: (page - 1) * 25,
         take: 25,
       });

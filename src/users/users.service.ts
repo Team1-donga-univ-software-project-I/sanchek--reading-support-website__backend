@@ -49,7 +49,7 @@ export class UserService {
     try {
       const user = await this.users.findOne({
         where: { email },
-        select: ["password"],
+        select: ["email", "id", "password"],
       });
       if (!user) {
         return {
@@ -81,12 +81,9 @@ export class UserService {
 
   async userProfile(id: number): Promise<UserProfileOutput> {
     try {
-      const user = await this.users.findOne({
+      const user = await this.users.findOneOrFail({
         where: { id },
       });
-      if (!user) {
-        throw Error();
-      }
       return {
         ok: true,
         user,

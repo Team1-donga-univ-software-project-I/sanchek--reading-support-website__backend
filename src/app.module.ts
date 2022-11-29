@@ -15,7 +15,6 @@ import { JwtModule } from "./jwt/jwt.module";
 import { JwtMiddleware } from "./jwt/jwt.middleware";
 import { Archivements } from "./users/entities/archivement.entity";
 import { Sanchek } from "./sancheks/entities/sanchek.entity";
-import { BookName } from "./sancheks/entities/book-name.entity";
 import { SancheksModule } from "./sancheks/sancheks.module";
 import { Discuss } from "./discusses/entities/discuss.entity";
 import { DiscussesModule } from "./discusses/discusses.module";
@@ -49,7 +48,7 @@ import { Opinion } from "./discusses/entities/opinion.entity";
       database: process.env.DB_DATABASE,
       synchronize: process.env.NODE_ENV !== "production",
       logging: process.env.NODE_ENV !== "production",
-      entities: [User, Archivements, Sanchek, BookName, Discuss, Opinion],
+      entities: [User, Archivements, Sanchek, Discuss, Opinion],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       debug: false,
